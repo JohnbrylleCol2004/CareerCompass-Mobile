@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import styles from '../../screen/styles/GradeStyles';
+import styles from '../../screen/styles/GradeScreenStyles';
 
 export default function GradesScreen() {
   const router = useRouter();

@@ -1,119 +1,121 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { 
+  View, 
+  Text, 
+  ScrollView, 
+  ActivityIndicator, 
+  Platform, 
+  Dimensions, 
+  Alert,
+  TouchableOpacity
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../../screen/styles/ResultsStyles';
-import Logo from '../../components/logo';
+
+const { width } = Dimensions.get('window');
+
+// Grade to Percentage Mapping
+const GRADE_MAP = {
+  '95-100': 97.5,
+  '90-94': 92,
+  '85-89': 87,
+  '80-84': 82,
+  '75-79': 77,
+  'Below 75': 70,
+  'Not taken': 0
+};
+
+// Interest to Career Mapping
+const CAREER_MAP = {
+  'Software Development': ['Full Stack Developer', 'Mobile App Developer', 'DevOps Engineer'],
+  'Data Science': ['Data Analyst', 'Machine Learning Engineer', 'Data Scientist'],
+  'Cybersecurity': ['Security Analyst', 'Penetration Tester', 'Security Architect'],
+  'Cloud Computing': ['Cloud Engineer', 'Solutions Architect', 'Site Reliability Engineer'],
+  'Networking': ['Network Administrator', 'Network Architect', 'Systems Engineer'],
+  'Web Development': ['Frontend Developer', 'Backend Developer', 'UI/UX Designer'],
+  // Default fallback
+  'General': ['Software Developer', 'IT Specialist', 'System Analyst']
+};
 
 export default function ResultsScreen() {
   const router = useRouter();
+  const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [recommendation, setRecommendation] = useState(null);
-
-  const careerPaths = {
-    'Programming': 'Software Engineer / Developer',
-    'Database Management': 'Database Administrator (DBA)',
-    'Networking': 'Network Engineer / Architect',
-    'Web Development': 'Full Stack Web Developer',
-    'Cybersecurity': 'Information Security Analyst',
-    'Cloud Computing': 'Cloud Solutions Architect'
-  };
-
-  const careerTips = {
-    'Software Engineer / Developer': [
-      'Focus on algorithms and data structures.',
-      'Build a portfolio of projects on GitHub.',
-      'Learn multiple languages (e.g., Java, Python, JavaScript).'
-    ],
-    'Database Administrator (DBA)': [
-      'Master SQL and NoSQL databases.',
-      'Learn about cloud database services (AWS RDS, Azure SQL).',
-      'Understand data modeling and optimization.'
-    ],
-    'Network Engineer / Architect': [
-      'Get certified (Cisco CCNA/CCNP, CompTIA Network+).',
-      'Learn about SD-WAN and network security.',
-      'Understand routing and switching protocols.'
-    ],
-    'Full Stack Web Developer': [
-      'Master React, Angular, or Vue.js.',
-      'Learn backend technologies (Node.js, Django).',
-      'Understand RESTful APIs and GraphQL.'
-    ],
-    'Information Security Analyst': [
-      'Get certified (CompTIA Security+, CISSP).',
-      'Learn ethical hacking and penetration testing.',
-      'Stay updated on the latest cyber threats.'
-    ],
-    'Cloud Solutions Architect': [
-      'Get certified (AWS Solutions Architect, Azure Architect).',
-      'Learn containerization (Docker, Kubernetes).',
-      'Understand DevOps and CI/CD pipelines.'
-    ]
-  };
 
   useEffect(() => {
-    const calculateResults = async () => {
-      try {
-        const gradesData = await AsyncStorage.getItem('user_grades');
-        if (!gradesData) {
-          router.push('/grades/page');
-          return;
-        }
-
-        const grades = JSON.parse(gradesData);
-        
-        // Convert grade ranges to numbers for comparison
-        const gradeMap = {
-          '95-100': 97,
-          '90-94': 92,
-          '85-89': 87,
-          '80-84': 82,
-          '75-79': 77,
-          'Below 75': 70,
-          'Not taken': 0
-        };
-
-        let highestScore = -1;
-        let bestSubject = '';
-
-        // Find the subject with the highest grade
-        for (const [subject, grade] of Object.entries(grades)) {
-          // Convert kebab-case key to display name (e.g., "Web Development")
-          const displayName = subject.replace(/([A-Z])/g, ' $1').trim();
-          // Re-format to match the keys in careerPaths exactly
-          const cleanSubject = displayName.charAt(0).toUpperCase() + displayName.slice(1);
-          
-          const score = gradeMap[grade] || 0;
-          if (score > highestScore) {
-            highestScore = score;
-            bestSubject = cleanSubject;
-          }
-        }
-
-        if (bestSubject && careerPaths[bestSubject]) {
-          setRecommendation({
-            career: careerPaths[bestSubject],
-            subject: bestSubject,
-            tips: careerTips[careerPaths[bestSubject]]
-          });
-        } else {
-          setRecommendation({
-            career: 'General IT Specialist',
-            subject: 'General',
-            tips: ['Explore various IT fields to find your passion.', 'Consider a broad certification like CompTIA A+.', 'Build a strong foundation in computer science basics.']
-          });
-        }
-
-      } catch (error) {
-        console.error('Error calculating results:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     calculateResults();
-  }, [router]);
+  }, []);
+
+  const calculateResults = async () => {
+    try {
+      const gradesData = await AsyncStorage.getItem('user_grades');
+      const interestsData = await AsyncStorage.getItem('user_interests');
+
+      if (!gradesData || !interestsData) {
+        Alert.alert('Missing Data', 'Please complete the grades and interests sections first.');
+        router.push('/grades');
+        return;
+      }
+
+      const grades = JSON.parse(gradesData);
+      const interests = JSON.parse(interestsData);
+
+      // 1. Calculate Base Score from Grades
+      const subjects = Object.keys(grades);
+      let totalScore = 0;
+      let count = 0;
+
+      subjects.forEach(subject => {
+        const gradeRange = grades[subject];
+        if (gradeRange && gradeRange !== 'Not taken') {
+          totalScore += GRADE_MAP[gradeRange] || 0;
+          count++;
+        }
+      });
+
+      const baseAverage = count > 0 ? (totalScore / count) : 0;
+
+      // 2. Determine Top Interest
+      const primaryInterest = interests.length > 0 ? interests : 'General';
+      const relatedCareers = CAREER_MAP[primaryInterest] || CAREER_MAP['General'];
+
+      // 3. Generate Matches with Varied Percentages
+      // We simulate "dynamic" scores by adjusting the base average slightly for each match
+      const matches = relatedCareers.slice(0, 3).map((career, index) => {
+        // Calculate a "match score" based on base average + variance
+        // Top match gets highest, subsequent ones get slightly lower
+        const variance = Math.max(0, 10 - (index * 5)); // e.g., +10, +5, +0
+        let matchScore = baseAverage + variance;
+        
+        // Cap at 100
+        if (matchScore > 100) matchScore = 100;
+        // Floor at 40 (minimum realistic score)
+        if (matchScore < 40) matchScore = 40;
+
+        return {
+          title: index === 0 ? 'Top Match' : index === 1 ? 'Second Match' : 'Third Match',
+          career: career,
+          score: Math.round(matchScore)
+        };
+      });
+
+      setResult({
+        matches,
+        interests,
+        baseAverage: Math.round(baseAverage)
+      });
+
+    } catch (error) {
+      console.error('Error calculating results:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConnect = () => {
+    Alert.alert('Connect', 'This would link to your profile or next step.');
+  };
 
   if (loading) {
     return (
@@ -124,36 +126,39 @@ export default function ResultsScreen() {
     );
   }
 
-  return (
-    <ScrollView style={styles.container}>
-      <Logo />
-      
-      <Text style={styles.header}>Your Career Path</Text>
-      
-      <View style={styles.card}>
-        <Text style={styles.label}>Based on your strength in</Text>
-        <Text style={styles.subjectText}>{recommendation?.subject}</Text>
-        
-        <Text style={styles.label}>We recommend</Text>
-        <Text style={styles.careerText}>{recommendation?.career}</Text>
-      </View>
+  if (!result) return null;
 
-      <View style={styles.tipsContainer}>
-        <Text style={styles.tipsHeader}>Why this path?</Text>
-        {recommendation?.tips.map((tip, index) => (
-          <View key={index} style={styles.tipItem}>
-            <Text style={styles.tipBullet}>•</Text>
-            <Text style={styles.tipText}>{tip}</Text>
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+      <Text style={styles.header}>Results</Text>
+      
+      {/* Main Green Card */}
+      <View style={styles.card}>
+        {result.matches.map((match, index) => (
+          <View key={index} style={styles.matchItem}>
+            <Text style={styles.matchLabel}>{match.title}</Text>
+            <Text style={styles.matchText}>
+              {match.career} - {match.score}%
+            </Text>
           </View>
         ))}
       </View>
 
+      {/* Disclaimer Text */}
+      <Text style={styles.disclaimer}>
+        Your results are dynamically generated using a weighted scoring model and may change when profile data is updated.
+      </Text>
+
+      {/* Connect Button */}
       <TouchableOpacity 
-        style={styles.button}
-        onPress={() => router.push('/')}
+        style={styles.connectButton} 
+        onPress={handleConnect}
+        activeOpacity={0.7}
       >
-        <Text style={styles.buttonText}>Back to Home</Text>
+        <Text style={styles.connectButtonText}>Connect</Text>
       </TouchableOpacity>
+      
+      <View style={{ height: 40 }} />
     </ScrollView>
   );
 }

@@ -1,118 +1,107 @@
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet, Dimensions, Platform } from 'react-native';
 
 const { width } = Dimensions.get('window');
+
+// Android-only elevation system (no iOS shadow props)
+const cardElevation = 6;
+const buttonElevation = 3;
 
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F0FFF8',
+    backgroundColor: '#F9FDFB',
+    // Android optimization: disable nested scrolling if needed
+  },
+  scrollContent: {
     padding: 20,
+    alignItems: 'center',
+    paddingBottom: 40,
+    // Ensure padding is consistent on Android
+    paddingTop: 20, 
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F0FFF8',
+    backgroundColor: '#F9FDFB',
   },
   loadingText: {
-    marginTop: 10,
+    marginTop: 16,
     fontSize: 16,
     color: '#666',
+    includeFontPadding: false, // Critical for Android
   },
   header: {
     fontSize: 28,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 25,
+    marginTop: 10,
     textAlign: 'center',
-    marginTop: 20,
-    marginBottom: 30,
+    includeFontPadding: false,
   },
   card: {
-    backgroundColor: '#FFFFFF',
-    padding: 25,
-    borderRadius: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-    marginBottom: 25,
-    alignItems: 'center',
-  },
-  label: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 5,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  subjectText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#4A9F8F',
-    marginBottom: 20,
-  },
-  careerText: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#333',
-    textAlign: 'center',
-    lineHeight: 32,
-  },
-  tipsContainer: {
-    backgroundColor: '#FFFFFF',
-    padding: 20,
-    borderRadius: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-    marginBottom: 30,
-  },
-  tipsHeader: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-    paddingBottom: 10,
-  },
-  tipItem: {
-    flexDirection: 'row',
-    marginBottom: 12,
-    alignItems: 'flex-start',
-  },
-  tipBullet: {
-    color: '#4A9F8F',
-    fontSize: 20,
-    marginRight: 10,
-    marginTop: -2,
-    fontWeight: 'bold',
-  },
-  tipText: {
-    flex: 1,
-    fontSize: 15,
-    color: '#555',
-    lineHeight: 22,
-  },
-  button: {
     backgroundColor: '#4A9F8F',
-    paddingVertical: 15,
+    borderRadius: 12,
+    padding: 20,
+    width: width * 0.9,
+    alignItems: 'flex-start',
+    marginBottom: 25,
+    // Android Shadow
+    elevation: cardElevation,
+    // Remove iOS shadow props entirely
+    shadowColor: undefined,
+    shadowOffset: undefined,
+    shadowOpacity: undefined,
+    shadowRadius: undefined,
+  },
+  matchItem: {
+    marginBottom: 18,
+  },
+  matchLabel: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    includeFontPadding: false,
+  },
+  matchText: {
+    fontSize: 18,
+    color: '#FFFFFF',
+    fontWeight: '500',
+    includeFontPadding: false,
+  },
+  disclaimer: {
+    fontSize: 14,
+    color: '#555',
+    textAlign: 'center',
+    marginBottom: 30,
+    lineHeight: 20,
+    includeFontPadding: false,
+  },
+  connectButton: {
+    backgroundColor: '#4A9F8F',
     paddingHorizontal: 40,
+    paddingVertical: 14, // Minimum 48dp height (approx 14+14+20=48)
     borderRadius: 25,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    marginBottom: 40,
+    justifyContent: 'center',
+    // Android Shadow
+    elevation: buttonElevation,
+    // Remove iOS shadow props
+    shadowColor: undefined,
+    shadowOffset: undefined,
+    shadowOpacity: undefined,
+    shadowRadius: undefined,
+    minWidth: 150,
+    minHeight: 48, // Material Design touch target
   },
-  buttonText: {
+  connectButtonText: {
     color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: 'bold',
+    includeFontPadding: false,
   },
 });

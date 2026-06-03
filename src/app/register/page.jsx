@@ -9,19 +9,55 @@ export default function RegisterScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmError, setConfirmError] = useState('');
 
-  const handleRegister = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
-      return;
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  const handleRegister = () => {
+    let isValid = true;
+
+    if (!email) {
+      setEmailError('Email is required');
+      isValid = false;
+    } else if (!validateEmail(email)) {
+      setEmailError('Please enter a valid email address');
+      isValid = false;
+    } else {
+      setEmailError('');
     }
 
-    // Mock registration logic (replace with your actual logic later)
+    if (!password) {
+      setPasswordError('Password is required');
+      isValid = false;
+    } else if (password.length < 6) {
+      setPasswordError('Password must be at least 6 characters');
+      isValid = false;
+    } else {
+      setPasswordError('');
+    }
+
+    if (!confirmPassword) {
+      setConfirmError('Please confirm your password');
+      isValid = false;
+    } else if (password !== confirmPassword) {
+      setConfirmError('Passwords do not match');
+      isValid = false;
+    } else {
+      setConfirmError('');
+    }
+
+    if (!isValid) return;
+
     const mockUser = { email, registered: true };
-    
-    await saveUserSession(mockUser);
-    
-    router.push('/assessment/page');
+    saveUserSession(mockUser);
+    router.push('/login/page');
   };
 
   return (
@@ -31,30 +67,51 @@ export default function RegisterScreen() {
       <Text style={styles.title}>Career Compass</Text>
       
       <View style={styles.formContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor="#888"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-        />
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor="#888"
+            value={email}
+            onChangeText={(text) => {
+              setEmail(text);
+              if (emailError) setEmailError('');
+            }}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
+          {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+        </View>
         
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#888"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor="#888"
+            secureTextEntry
+            value={password}
+            onChangeText={(text) => {
+              setPassword(text);
+              if (passwordError) setPasswordError('');
+            }}
+          />
+          {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+        </View>
         
-        <TouchableOpacity 
-          style={styles.forgotPasswordContainer}
-          onPress={() => router.push('/forgot-password/page')}
-        >
-          <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-        </TouchableOpacity>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm Password"
+            placeholderTextColor="#888"
+            secureTextEntry
+            value={confirmPassword}
+            onChangeText={(text) => {
+              setConfirmPassword(text);
+              if (confirmError) setConfirmError('');
+            }}
+          />
+          {confirmError ? <Text style={styles.errorText}>{confirmError}</Text> : null}
+        </View>
       </View>
       
       <TouchableOpacity 
@@ -62,6 +119,13 @@ export default function RegisterScreen() {
         onPress={handleRegister}
       >
         <Text style={styles.registerButtonText}>Register</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity 
+        style={styles.loginLink}
+        onPress={() => router.push('/login/page')}
+      >
+        <Text style={styles.loginLinkText}>Already have an account? Login</Text>
       </TouchableOpacity>
     </View>
   );
