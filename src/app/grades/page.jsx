@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import styles from '../../screen/styles/GradesStyles';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import styles from '../../screen/styles/GradeStyles';
 
 export default function GradesScreen() {
   const router = useRouter();
@@ -49,7 +50,7 @@ export default function GradesScreen() {
     setExpandedSubject(expandedSubject === subject ? null : subject);
   };
 
-  const handleProceed = () => {
+  const handleProceed = async () => {
     const allGrades = Object.values(grades);
     const hasEmptyGrade = allGrades.some(grade => grade === '');
     
@@ -58,8 +59,12 @@ export default function GradesScreen() {
       return;
     }
     
-    // Store grades for later use
-    router.push('/results'); // or next screen
+    try {
+      await AsyncStorage.setItem('user_grades', JSON.stringify(grades));
+      router.push('/interests/page');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to save grades');
+    }
   };
 
   return (
