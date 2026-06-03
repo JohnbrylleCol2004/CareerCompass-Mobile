@@ -1,155 +1,151 @@
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet, Dimensions, Platform } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F0FFF8',
+    backgroundColor: '#FFFFFF',
+    // Android specific: Ensure background is white even if status bar is translucent
+  },
+  scrollContent: {
     padding: 20,
+    // Android Safe Area handling
+    paddingBottom: Platform.OS === 'android' ? 40 : 60, 
   },
-  header: {
+  title: {
     fontSize: 28,
-    fontWeight: '600',
-    color: '#333',
-    textAlign: 'center',
+    fontWeight: 'bold',
+    color: '#000',
     marginBottom: 30,
-    marginTop: 20,
-  },
-  section: {
-    marginBottom: 25,
+    // Critical for Android to prevent extra line height
+    includeFontPadding: false, 
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 12,
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 15,
+    marginTop: 10,
+    includeFontPadding: false,
   },
-  checkboxGroup: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
+  areasContainer: {
+    marginBottom: 30,
   },
-  checkboxContainer: {
+  areaItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 8,
+    paddingVertical: 14, // Slightly taller for easier Android touch targets
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEE',
+    // Android ripple effect is handled by TouchableOpacity activeOpacity
+  },
+  areaItemSelected: {
+    backgroundColor: '#E8F5E9', // Light green background for selection
     paddingHorizontal: 12,
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#D1E8E6',
+    borderBottomWidth: 0,
+    // Elevation for selected state on Android
+    elevation: 2, 
   },
   checkbox: {
-    width: 18,
-    height: 18,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: '#4A9F8F',
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 8,
+    width: 20, // Slightly larger for Android touch
+    height: 20,
+    borderWidth: 2,
+    borderColor: '#999',
+    marginRight: 14,
+    borderRadius: 4, // Android checkboxes are often slightly rounded squares
+    backgroundColor: '#FFF',
   },
   checkboxSelected: {
     backgroundColor: '#4A9F8F',
-  },
-  checkboxCheck: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  checkboxLabel: {
-    fontSize: 14,
-    color: '#333',
-  },
-  techGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-  techCheckbox: {
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#D1E8E6',
-  },
-  techCheckboxSelected: {
-    backgroundColor: '#4A9F8F',
     borderColor: '#4A9F8F',
   },
-  techText: {
-    fontSize: 13,
-    color: '#666',
+  areaText: {
+    fontSize: 16,
+    color: '#333',
+    includeFontPadding: false, // Fix Android font spacing
   },
-  techTextSelected: {
-    color: '#FFFFFF',
-    fontWeight: '500',
+  areaTextSelected: {
+    color: '#4A9F8F',
+    fontWeight: '600', // Android fonts often need bolder weight to stand out
   },
-  dropdown: {
+  levelContainer: {
+    marginBottom: 40,
+  },
+  levelDropdown: {
     backgroundColor: '#4A9F8F',
-    paddingVertical: 15,
-    paddingHorizontal: 15,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
     borderRadius: 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    // Android Elevation for button depth
+    elevation: 4,
+    shadowColor: '#000', // Shadow for iOS fallback
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
-  selectedText: {
-    color: '#FFFFFF',
+  levelText: {
+    color: '#FFF',
     fontSize: 16,
-    fontWeight: '500',
+    includeFontPadding: false,
   },
-  placeholderText: {
-    color: '#E0E0E0',
-    fontSize: 16,
-    fontWeight: '500',
+  dropdownArrow: {
+    color: '#FFF',
+    fontSize: 14,
   },
-  dropdownIcon: {
-    color: '#FFFFFF',
-    fontSize: 12,
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)', // Slightly darker for Android
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  dropdownMenu: {
-    backgroundColor: '#4A9F8F',
-    borderRadius: 8,
-    marginTop: 5,
+  modalContent: {
+    backgroundColor: '#FFF',
+    borderRadius: 12,
+    width: width * 0.85, // Slightly wider on Android
+    maxHeight: 250,
     overflow: 'hidden',
-  },
-  dropdownItem: {
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    alignItems: 'center',
-  },
-  dropdownItemSelected: {
-    backgroundColor: '#3D8F7F',
-  },
-  dropdownItemText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '400',
-  },
-  dropdownItemTextSelected: {
-    fontWeight: '600',
-  },
-  button: {
-    backgroundColor: '#4A9F8F',
-    paddingVertical: 15,
-    paddingHorizontal: 40,
-    borderRadius: 25,
-    alignItems: 'center',
-    marginTop: 30,
-    marginBottom: 20,
+    // Elevation for modal card
+    elevation: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 3,
   },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
+  modalItem: {
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEE',
+    alignItems: 'center', // Center text on Android
+  },
+  modalText: {
+    fontSize: 16,
+    color: '#000',
+    includeFontPadding: false,
+  },
+  continueButton: {
+    backgroundColor: '#4A9F8F',
+    paddingVertical: 16,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    // Android Elevation for button
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  continueButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+    includeFontPadding: false,
+    letterSpacing: 0.5, // Slight spacing helps Android fonts
   },
 });

@@ -1,181 +1,173 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Platform,
+  Dimensions,
+  Modal,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../../screen/styles/InterestsStyles';
 
+const { width } = Dimensions.get('window');
+
+const IT_AREAS = [
+  'Web Development',
+  'Mobile Development',
+  'Cybersecurity',
+  'Data Science',
+  'Networking',
+  'Cloud Computing',
+  'Software Engineering',
+];
+
+const EXPERIENCE_LEVELS = ['Entry', 'Junior', 'Senior'];
+
 export default function InterestsScreen() {
   const router = useRouter();
-
-  const itAreas = [
-    'Web Development', 'Mobile Development', 'Cybersecurity',
-    'Data Science', 'Networking', 'Cloud Computing', 'Software Engineering'
-  ];
-
-  const technologies = [
-    'Python', 'Java', 'C++', 'JavaScript', 'React', 'Artificial Intelligence',
-    'AWS', 'Linux', 'Kotlin', 'Swift', 'MySQL', 'Flutter'
-  ];
-
-  const experienceLevels = ['Entry', 'Junior', 'Senior'];
-  const yearLevels = ['1st Year', '2nd Year', '3rd Year', '4th Year', 'N/A'];
-
   const [selectedAreas, setSelectedAreas] = useState([]);
-  const [selectedTechs, setSelectedTechs] = useState([]);
   const [experienceLevel, setExperienceLevel] = useState('');
-  const [yearLevel, setYearLevel] = useState('');
-  const [expandedExperience, setExpandedExperience] = useState(false);
-  const [expandedYear, setExpandedYear] = useState(false);
+  const [isLevelDropdownVisible, setIsLevelDropdownVisible] = useState(false);
 
   const toggleArea = (area) => {
-    setSelectedAreas(prev =>
-      prev.includes(area) ? prev.filter(item => item !== area) : [...prev, area]
+    setSelectedAreas((prev) =>
+      prev.includes(area)
+        ? prev.filter((a) => a !== area)
+        : [...prev, area]
     );
   };
 
-  const toggleTech = (tech) => {
-    setSelectedTechs(prev =>
-      prev.includes(tech) ? prev.filter(item => item !== tech) : [...prev, tech]
-    );
-  };
-
-  const handleExperienceSelect = (level) => {
-    setExperienceLevel(level);
-    setExpandedExperience(false);
-  };
-
-  const handleYearSelect = (year) => {
-    setYearLevel(year);
-    setExpandedYear(false);
-  };
-
-  const handleProceed = async () => {
-    if (!experienceLevel || !yearLevel) {
-      Alert.alert('Incomplete', 'Please select Experience Level and Current Year Level');
+  const handleNext = async () => {
+    if (selectedAreas.length === 0 || !experienceLevel) {
+      alert('Please select at least one IT area and your experience level.');
       return;
     }
 
-    const data = {
-      selectedAreas,
-      selectedTechs,
-      experienceLevel,
-      yearLevel
-    };
-
     try {
-      await AsyncStorage.setItem('user_interests', JSON.stringify(data));
-      router.push('/results/page');
+      await AsyncStorage.setItem(
+        'user_interests',
+        JSON.stringify({
+          selectedAreas,
+          experienceLevel,
+        })
+      );
+      router.push('/analyzing/page');
     } catch (error) {
-      Alert.alert('Error', 'Failed to save interests');
+      console.error('Failed to save interests:', error);
+      alert('Failed to save your preferences. Please try again.');
     }
   };
 
-  return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.header}>Interests & experience</Text>
+  // Android Font Fix: Ensures text doesn't have extra top/bottom padding
+  const FontText = ({ children, style, ...props }) => (
+    <Text 
+      {...props} 
+      includeFontPadding={Platform.OS === 'android'} 
+      style={style}
+    >
+      {children}
+    </Text>
+  );
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Preferred IT areas</Text>
-        <View style={styles.checkboxGroup}>
-          {itAreas.map((area) => (
+  return (
+    <ScrollView
+      style={styles.container}
+      // FIXED: Removed the second contentContainerStyle definition
+      contentContainerStyle={[
+        styles.scrollContent, 
+        { paddingBottom: Platform.OS === 'android' ? 40 : 60 }
+      ]}
+      showsVerticalScrollIndicator={Platform.OS === 'android'}
+    >
+      <FontText style={styles.title}>Interests & experience</FontText>
+
+      {/* Preferred IT Areas */}
+      <FontText style={styles.sectionTitle}>Preferred IT areas</FontText>
+      <View style={styles.areasContainer}>
+        {IT_AREAS.map((area) => {
+          const isSelected = selectedAreas.includes(area);
+          return (
             <TouchableOpacity
               key={area}
-              style={styles.checkboxContainer}
+              style={[
+                styles.areaItem,
+                isSelected && styles.areaItemSelected,
+              ]}
               onPress={() => toggleArea(area)}
+              activeOpacity={0.7}
+              delayPressIn={0}
             >
-              <View style={[styles.checkbox, selectedAreas.includes(area) && styles.checkboxSelected]}>
-                {selectedAreas.includes(area) && <Text style={styles.checkboxCheck}>✓</Text>}
-              </View>
-              <Text style={styles.checkboxLabel}>{area}</Text>
+              <View
+                style={[
+                  styles.checkbox,
+                  isSelected && styles.checkboxSelected,
+                ]}
+              />
+              <FontText style={[styles.areaText, isSelected && styles.areaTextSelected]}>
+                {area}
+              </FontText>
             </TouchableOpacity>
-          ))}
-        </View>
+          );
+        })}
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Technologies Familiar with</Text>
-        <View style={styles.techGrid}>
-          {technologies.map((tech) => (
-            <TouchableOpacity
-              key={tech}
-              style={[styles.techCheckbox, selectedTechs.includes(tech) && styles.techCheckboxSelected]}
-              onPress={() => toggleTech(tech)}
-            >
-              <Text style={[styles.techText, selectedTechs.includes(tech) && styles.techTextSelected]}>
-                {tech}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Experience level</Text>
+      {/* Experience Level */}
+      <FontText style={styles.sectionTitle}>Experience level</FontText>
+      <View style={styles.levelContainer}>
         <TouchableOpacity
-          style={styles.dropdown}
-          onPress={() => {
-            setExpandedExperience(!expandedExperience);
-            setExpandedYear(false);
-          }}
+          style={styles.levelDropdown}
+          onPress={() => setIsLevelDropdownVisible(true)}
+          activeOpacity={0.8}
         >
-          <Text style={experienceLevel ? styles.selectedText : styles.placeholderText}>
-            {experienceLevel || 'Select Experience Level'}
-          </Text>
-          <Text style={styles.dropdownIcon}>▼</Text>
+          <FontText style={styles.levelText}>
+            {experienceLevel || 'Select experience level'}
+          </FontText>
+          <Text style={styles.dropdownArrow}>▼</Text>
         </TouchableOpacity>
 
-        {expandedExperience && (
-          <View style={styles.dropdownMenu}>
-            {experienceLevels.map((level) => (
-              <TouchableOpacity
-                key={level}
-                style={[styles.dropdownItem, experienceLevel === level && styles.dropdownItemSelected]}
-                onPress={() => handleExperienceSelect(level)}
-              >
-                <Text style={[styles.dropdownItemText, experienceLevel === level && styles.dropdownItemTextSelected]}>
-                  {level}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Current Year Level</Text>
-        <TouchableOpacity
-          style={styles.dropdown}
-          onPress={() => {
-            setExpandedYear(!expandedYear);
-            setExpandedExperience(false);
-          }}
+        <Modal
+          visible={isLevelDropdownVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setIsLevelDropdownVisible(false)}
         >
-          <Text style={yearLevel ? styles.selectedText : styles.placeholderText}>
-            {yearLevel || 'Select Year Level'}
-          </Text>
-          <Text style={styles.dropdownIcon}>▼</Text>
-        </TouchableOpacity>
-
-        {expandedYear && (
-          <View style={styles.dropdownMenu}>
-            {yearLevels.map((year) => (
-              <TouchableOpacity
-                key={year}
-                style={[styles.dropdownItem, yearLevel === year && styles.dropdownItemSelected]}
-                onPress={() => handleYearSelect(year)}
-              >
-                <Text style={[styles.dropdownItemText, yearLevel === year && styles.dropdownItemTextSelected]}>
-                  {year}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={() => setIsLevelDropdownVisible(false)}
+          >
+            <View style={styles.modalContent}>
+              {EXPERIENCE_LEVELS.map((level) => (
+                <TouchableOpacity
+                  key={level}
+                  style={styles.modalItem}
+                  onPress={() => {
+                    setExperienceLevel(level);
+                    setIsLevelDropdownVisible(false);
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <FontText style={styles.modalText}>{level}</FontText>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </TouchableOpacity>
+        </Modal>
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleProceed}>
-        <Text style={styles.buttonText}>Proceed</Text>
+      {/* Continue Button */}
+      <TouchableOpacity
+        style={styles.continueButton}
+        onPress={handleNext}
+        activeOpacity={0.8}
+      >
+        <FontText style={styles.continueButtonText}>Continue</FontText>
       </TouchableOpacity>
+
+      <View style={{ height: 40 }} />
     </ScrollView>
   );
 }

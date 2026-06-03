@@ -2,106 +2,139 @@ import { StyleSheet, Dimensions, Platform } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
-// Android-only elevation system (no iOS shadow props)
-const cardElevation = 6;
-const buttonElevation = 3;
-
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FDFB',
-    // Android optimization: disable nested scrolling if needed
+    backgroundColor: '#FFFFFF',
   },
   scrollContent: {
     padding: 20,
-    alignItems: 'center',
-    paddingBottom: 40,
-    // Ensure padding is consistent on Android
-    paddingTop: 20, 
+    paddingBottom: Platform.OS === 'android' ? 40 : 60,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F9FDFB',
+    backgroundColor: '#FFF',
   },
   loadingText: {
-    marginTop: 16,
+    marginTop: 15,
     fontSize: 16,
     color: '#666',
-    includeFontPadding: false, // Critical for Android
+    includeFontPadding: false,
   },
   header: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#000',
-    marginBottom: 25,
-    marginTop: 10,
-    textAlign: 'center',
+    marginBottom: 10,
     includeFontPadding: false,
   },
-  card: {
-    backgroundColor: '#4A9F8F',
+  subHeader: {
+    fontSize: 16,
+    color: '#555',
+    marginBottom: 25,
+    lineHeight: 22,
+    includeFontPadding: false,
+  },
+  highlight: {
+    color: '#4A9F8F',
+    fontWeight: '600',
+  },
+  scoreCard: {
+    backgroundColor: '#E8F5E9',
     borderRadius: 12,
     padding: 20,
-    width: width * 0.9,
-    alignItems: 'flex-start',
-    marginBottom: 25,
-    // Android Shadow
-    elevation: cardElevation,
-    // Remove iOS shadow props entirely
-    shadowColor: undefined,
-    shadowOffset: undefined,
-    shadowOpacity: undefined,
-    shadowRadius: undefined,
+    alignItems: 'center',
+    marginBottom: 30,
+    // Android Elevation
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
-  matchItem: {
-    marginBottom: 18,
-  },
-  matchLabel: {
+  scoreLabel: {
     fontSize: 14,
+    color: '#4A9F8F',
+    fontWeight: '600',
+    marginBottom: 5,
+    includeFontPadding: false,
+  },
+  scoreValue: {
+    fontSize: 48,
     fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 4,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    color: '#000',
+    marginBottom: 5,
     includeFontPadding: false,
   },
-  matchText: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    fontWeight: '500',
-    includeFontPadding: false,
-  },
-  disclaimer: {
+  scoreDesc: {
     fontSize: 14,
     color: '#555',
     textAlign: 'center',
-    marginBottom: 30,
-    lineHeight: 20,
     includeFontPadding: false,
   },
-  connectButton: {
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 15,
+    includeFontPadding: false,
+  },
+  roleCard: {
+    backgroundColor: '#FFF',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#EEE',
+    // Android Elevation for card depth
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+  },
+  roleTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 6,
+    includeFontPadding: false,
+  },
+  roleDesc: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 12,
+    includeFontPadding: false,
+  },
+  matchBadge: {
+    alignSelf: 'flex-end',
     backgroundColor: '#4A9F8F',
-    paddingHorizontal: 40,
-    paddingVertical: 14, // Minimum 48dp height (approx 14+14+20=48)
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  matchText: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: 'bold',
+    includeFontPadding: false,
+  },
+  retryButton: {
+    backgroundColor: '#FFF',
+    borderWidth: 1,
+    borderColor: '#4A9F8F',
+    paddingVertical: 14,
     borderRadius: 25,
     alignItems: 'center',
-    justifyContent: 'center',
-    // Android Shadow
-    elevation: buttonElevation,
-    // Remove iOS shadow props
-    shadowColor: undefined,
-    shadowOffset: undefined,
-    shadowOpacity: undefined,
-    shadowRadius: undefined,
-    minWidth: 150,
-    minHeight: 48, // Material Design touch target
+    marginTop: 10,
+    elevation: 2,
   },
-  connectButtonText: {
-    color: '#FFFFFF',
+  retryText: {
+    color: '#4A9F8F',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
     includeFontPadding: false,
   },
 });
