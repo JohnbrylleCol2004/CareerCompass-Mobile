@@ -1,12 +1,28 @@
-// src/app/register/page.jsx
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import styles from '../../screen/styles/RegisterScreenStyles';
 import Logo from '../../components/logo';
+import { saveUserSession } from '../../utils/auth';
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleRegister = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    // Mock registration logic (replace with your actual logic later)
+    const mockUser = { email, registered: true };
+    
+    await saveUserSession(mockUser);
+    
+    router.push('/assessment/page');
+  };
 
   return (
     <View style={styles.container}>
@@ -17,8 +33,11 @@ export default function RegisterScreen() {
       <View style={styles.formContainer}>
         <TextInput
           style={styles.input}
-          placeholder="Username"
+          placeholder="Email"
           placeholderTextColor="#888"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
         />
         
         <TextInput
@@ -26,11 +45,13 @@ export default function RegisterScreen() {
           placeholder="Password"
           placeholderTextColor="#888"
           secureTextEntry
+          value={password}
+          onChangeText={setPassword}
         />
         
         <TouchableOpacity 
           style={styles.forgotPasswordContainer}
-          onPress={() => router.push('/forgot-password')}
+          onPress={() => router.push('/forgot-password/page')}
         >
           <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
         </TouchableOpacity>
@@ -38,7 +59,7 @@ export default function RegisterScreen() {
       
       <TouchableOpacity 
         style={styles.registerButton}
-        onPress={() => router.push('/')} // Navigate to home or trigger register
+        onPress={handleRegister}
       >
         <Text style={styles.registerButtonText}>Register</Text>
       </TouchableOpacity>

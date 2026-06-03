@@ -1,12 +1,28 @@
-// src/app/login/page.jsx
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import styles from '../../screen/styles/LoginScreenStyles';
 import Logo from '../../components/logo';
+import { saveUserSession } from '../../utils/auth';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    // Mock login logic (replace with your actual logic later)
+    const mockUser = { email, logged_in: true };
+    
+    await saveUserSession(mockUser);
+    
+    router.push('/assessment/page');
+  };
 
   return (
     <View style={styles.container}>
@@ -17,8 +33,11 @@ export default function LoginScreen() {
       <View style={styles.formContainer}>
         <TextInput
           style={styles.input}
-          placeholder="Username"
+          placeholder="Email"
           placeholderTextColor="#888"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
         />
         
         <TextInput
@@ -26,6 +45,8 @@ export default function LoginScreen() {
           placeholder="Password"
           placeholderTextColor="#888"
           secureTextEntry
+          value={password}
+          onChangeText={setPassword}
         />
         
         <TouchableOpacity 
@@ -38,7 +59,7 @@ export default function LoginScreen() {
       
       <TouchableOpacity 
         style={styles.loginButton}
-        onPress={() => router.push('/')} // Navigate to home or trigger login
+        onPress={handleLogin}
       >
         <Text style={styles.loginButtonText}>Login</Text>
       </TouchableOpacity>
